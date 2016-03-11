@@ -15,12 +15,9 @@ namespace pzip
 
     class Program
     {
-
         public static void catchemall(string url, string remotepath, string localpath)
         {
-
             /* Checking if local file exists */
-
             if (File.Exists(localpath))
             {
                 File.Delete(localpath);
@@ -29,14 +26,13 @@ namespace pzip
             /* creating local file */
             File.Create(localpath).Dispose();
 
-            RemoteZipFile zip;
-            zip = new RemoteZipFile();
+            RemoteZipFile zip = new RemoteZipFile();
 
             if (zip.Load(url) == false)
             {
                 Console.WriteLine("ERROR: Wasn't able to map the remote zip");
                 Environment.Exit(1);
-            } 
+            }
             Console.WriteLine("Loaded URL: " + url);
 
             int itemscount = 0;
@@ -49,48 +45,45 @@ namespace pzip
                     Console.WriteLine("Found remote file: " + zipe.ToString());
                     break;
                 }
-                itemscount = itemscount + 1;
-                 
-                
+
+                itemscount++;
             }
+
             ZipEntry zipee = zip[itemscount];
 
-                Stream os = File.Open(localpath, FileMode.Open);
-                Stream s = zip.GetInputStream(zipee);
+            Stream os = File.Open(localpath, FileMode.Open);
+            Stream s = zip.GetInputStream(zipee);
 
-                byte[] bb = new byte[65536];
+            byte[] bb = new byte[65536];
 
-                try
+            try
+            {
+                while (true)
                 {
-                    while (true)
-                    {
-                        int r = s.Read(bb, 0, bb.Length);
-                        if (r <= 0)
-                            break;
-                        os.Write(bb, 0, r);
-                    }
+                    int r = s.Read(bb, 0, bb.Length);
+                    if (r <= 0)
+                        break;
+                    os.Write(bb, 0, r);
                 }
-                catch (Exception ee)
-                {
-                    Console.WriteLine("Unknown error: " + ee);
-                }
-                os.Close();
-                s.Close();
+            }
+            catch (Exception ee)
+            {
+                Console.WriteLine("Unknown error: " + ee);
+            }
 
+            os.Close();
+            s.Close();
         }
 
         static void Main(string[] args)
         {
-
-
-            if (args == null || args.Length == 0)
+            if (args == null || args.Length < 3)
             {
-                Console.WriteLine("Usage: pzip.exe <url> <remotpath> <localpath>");
+                Console.WriteLine("Usage: pzip.exe <url> <remotepath> <localpath>");
                 Environment.Exit(0);
             }
 
             catchemall(args[0], args[1], args[2]);
-
         }
     }
 }
